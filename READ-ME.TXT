@@ -1,0 +1,105 @@
+
+----------------------------------------------------------------------
+-- faire touner l'application dans un cluster (testé sur minkube) ==> relu OK
+----------------------------------------------------------------------
+
+1- on package le jar 
+dans le folder /git/k8s-java-postgres : 
+mvn clean package -Dmaven.test.skip 
+
+2- on build notre image docker 
+dans le folder /git/k8s-java-postgres : 
+docker build -t itdriveview/k8s-java-postgres:1.0 .
+
+  CONSEIL!
+  --------
+  dés que je modifie mon jar packagé, il est préférable de builder avec un nouveau tag: 2.0..3.0..etc
+  ça permet de s'assurer que kubernetes pullera bien une NOUVELLE image et non pas une image en cache dans son cluster 
+  (le nouveau contenu, avec le même tag est bien poussé sur Docker Hub, mais n'est pas forcément pullé sur le cluster)
+
+3- je push mon image dans mon registry docker (Docker Hub) 
+docker push itdriveview/k8s-java-postgres:1.0
+
+4- je cherche à la racine du folder /git/k8s-java-postgres tous mes fichiers contenant l'expression itdriveview
+il me ressort le fichier --> src/main/resources/kubernetes/deployment.yml
+
+j'édite mon fichier pour être sûr que cette spec yaml contient bien le nom exact de l'image et du tag 
+
+==> image: itdriveview/k8s-java-postgres:1.0 ==> c'est OK 
+
+5- je crée ma ressource ConfigMap
+dans le folder git/k8s-java-postgres/src/main/resources/kubernetes : 
+kubectl apply -f postgres-configmap.yml 
+
+5- je crée ma ressource Secret
+kubectl apply -f postgres-credentials.yml
+
+6- je crée ma ressource Deployment pour Postgres (et ses autres ressources incluses dans la spec)
+kubectl apply -f postgres-deployment.yml
+
+7- je crée ma ressource Deployment pour mon application SpringBoot (et ses autres ressources incluses dans la spec)
+kubectl apply -f deployment.yml
+
+8- je liste mes ressources Pod démarrées 
+kubectl get po 
+
+9- je fais un port-forward de l'un des Pod, par exemple : 
+kubectl port-forward springboot-postgres-k8s-5495bddf67-5xqtd 8099:8080
+
+10- dans un Postman, je teste mon application avec du POST 
+http://localhost:8099/api/employees
+
+	payload json = 
+	{
+	    "name" : "DELDOUT"
+	}
+
+et avec le verbe GET
+http://localhost:8080/api/employees
+
+-----------------------------------------------------------------
+-- bien comprendre les mécanismes 
+-----------------------------------------------------------------
+
+se référer au fichier drive : 
+lien : 
+ou le retrouver dans mon drive avec les mots clés: 
+
+------------------------------------------
+-- divers 
+------------------------------------------
+
+--  chez moi 
+export DB_HOST=localhost;export DB_NAME=employeedb;export POSTGRES_USER=postgres;export POSTGRES_PASSWORD=postgres 
+
+-- à créer 
+export DB_HOST=postgres;export DB_NAME=employeedb;export POSTGRES_USER=postgres;export POSTGRES_PASSWORD=postgres 
+
+
+attention au piège ! 
+quand on fait un build avec la même version et qu'on pousse cette image dans dockerhub,
+le risque c'est que kubernetes ne pull pas cette image car il la voit avec le même tag,
+d'où la règle suivante : 
+dés que je build une nouvelle version --> je build avec un nouveau tag ! 
+
+	je peux vérifier que mes variable d'environnement sont bien déposées dans mon container en faisant :
+	kubectl exec -ti springboot-postgres-k8s-5495bddf67-5xqtd --container springboot-postgres-k8s -- sh
+
+	puis avec la commande 
+	env
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

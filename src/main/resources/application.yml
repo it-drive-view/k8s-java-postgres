@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    generateDdl: true
+    database: POSTGRESQL
+    hibernate.ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.naming.physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+    hibernate.naming.implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+
+
+
