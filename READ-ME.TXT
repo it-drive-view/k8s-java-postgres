@@ -1,6 +1,6 @@
 
 ----------------------------------------------------------------------
--- faire touner l'application dans un cluster (testé sur minkube) ==> relu OK
+-- faire touner l'application dans un cluster (testé sur minkube) 
 ----------------------------------------------------------------------
 
 1- on package le jar 
@@ -55,51 +55,57 @@ http://localhost:8099/api/employees
 	}
 
 et avec le verbe GET
-http://localhost:8080/api/employees
+http://localhost:8089/api/employees
 
 -----------------------------------------------------------------
 -- bien comprendre les mécanismes 
 -----------------------------------------------------------------
 
 se référer au fichier drive : 
-lien : 
-ou le retrouver dans mon drive avec les mots clés: 
+https://docs.google.com/document/d/18N2n_cTMbw5nLXyxR0P_KlQKW0LDPzUOfvVcPLCxYZg/edit#heading=h.9ze0yd4r0sxb
 
-------------------------------------------
--- divers 
-------------------------------------------
+ou le retrouver dans mon arbo drive avec les mots clés: 
+kubernetes WORKFLOWS et CORRESPONDANCES
+ 
+----------------------------------------------------------------
+-- si je veux faire tourner mon appli spring boot en local 
+----------------------------------------------------------------
 
---  chez moi 
-export DB_HOST=localhost;export DB_NAME=employeedb;export POSTGRES_USER=postgres;export POSTGRES_PASSWORD=postgres 
+pour simplement tester, mon application spring boot localement, sans kubernetes, ni docker : 
 
--- à créer 
-export DB_HOST=postgres;export DB_NAME=employeedb;export POSTGRES_USER=postgres;export POSTGRES_PASSWORD=postgres 
+1- je dois avoir un serveur postgres local démarré, hébergeant une base de données nommée employedb 
 
+   A) je me connecte via psql
+      sudo -i -u postgres 
+      psql 
 
-attention au piège ! 
-quand on fait un build avec la même version et qu'on pousse cette image dans dockerhub,
-le risque c'est que kubernetes ne pull pas cette image car il la voit avec le même tag,
-d'où la règle suivante : 
-dés que je build une nouvelle version --> je build avec un nouveau tag ! 
+   B) je crée ma base de données employeedb 
+      create DATABASE employeedb ;
 
-	je peux vérifier que mes variable d'environnement sont bien déposées dans mon container en faisant :
-	kubectl exec -ti springboot-postgres-k8s-5495bddf67-5xqtd --container springboot-postgres-k8s -- sh
-
-	puis avec la commande 
-	env
+   C) je quitte psql 
+      exit
+      exit 
 
 
+2- je crée ces variables d'environnement afin que spring boot puisse les utiliser à l'étape suivante :
+export DB_HOST=localhost;export DB_NAME=employeedb;export POSTGRES_USER=postgres;export POSTGRES_PASSWORD=postgres
 
+3- je package mon application java. 
+Dans le folder /git/k8s-java-postgres :
+mvn clean package -Dmaven.test.skip
 
+4- je démarre mon application java
+Dans le folder /git/k8s-java-postgres :
+java -jar target/springboot-postgres-k8s-0.0.1-SNAPSHOT.jar
 
+10- dans un Postman, je teste mon application avec du POST
+http://localhost:8099/api/employees
 
+        payload json =
+        {
+            "name" : "DELDOUT"
+        }
 
-
-
-
-
-
-
-
-
+et avec le verbe GET
+http://localhost:8089/api/employees
 
