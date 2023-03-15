@@ -98,6 +98,9 @@ mvn clean package -Dmaven.test.skip
 Dans le folder /git/k8s-java-postgres :
 java -jar target/springboot-postgres-k8s-0.0.1-SNAPSHOT.jar
 
+	remarque:
+        il faut démarrer l'appli java dans le même terminale que celui où on a créé nos variables d'environnement (elles risquent de ne pas être vues sinon)    
+
 10- dans un Postman, je teste mon application avec du POST
 http://localhost:8099/api/employees
 
