@@ -125,7 +125,7 @@ java -jar target/springboot-postgres-k8s-0.0.1-SNAPSHOT.jar
         il faut démarrer l'appli java dans le même terminale que celui où on a créé nos variables d'environnement (elles risquent de ne pas être vues sinon)    
 
 10- dans un Postman, je teste mon application avec du POST
-http://localhost:8099/api/employees
+http://localhost:8080/api/employees
 
         payload json =
         {
@@ -133,5 +133,5 @@ http://localhost:8099/api/employees
         }
 
 et avec le verbe GET
-http://localhost:8089/api/employees
+http://localhost:8080/api/employees
 
