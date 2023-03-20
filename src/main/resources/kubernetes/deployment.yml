@@ -1,9 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: springboot-postgres-k8s
-  labels:
-    name: springboot-postgres-k8s
+  name: springboot-svc-name
 spec:
   ports:
     - nodePort: 30163
@@ -18,7 +16,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: springboot-postgres-k8s
+  name: springboot-dp-name
 spec:
   selector:
     matchLabels:
@@ -30,7 +28,7 @@ spec:
         app: springboot-postgres-k8s
     spec:
       containers:
-        - name: springboot-postgres-k8s
+        - name: springboot-container-name
           image: itdriveview/k8s-java-postgres:1.0
           ports:
             - containerPort: 8080
