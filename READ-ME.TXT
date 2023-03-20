@@ -13,15 +13,17 @@ docker build -t itdriveview/k8s-java-postgres:1.0 .
 
   CONSEIL!
   --------
-  dés que je modifie mon jar packagé, il est préférable de builder avec un nouveau tag: 2.0..3.0..etc
+  dés que je modifie mon jar packagé, il est préférable de builder avec un nouveau tag: 2.0 3.0 etc
   ça permet de s'assurer que kubernetes pullera bien une NOUVELLE image et non pas une image en cache dans son cluster 
   (le nouveau contenu, avec le même tag est bien poussé sur Docker Hub, mais n'est pas forcément pullé sur le cluster)
 
 3- je push mon image dans mon registry docker (Docker Hub) 
 docker push itdriveview/k8s-java-postgres:1.0
 
-4- je cherche à la racine du folder /git/k8s-java-postgres tous mes fichiers contenant l'expression itdriveview
-il me ressort le fichier --> src/main/resources/kubernetes/deployment.yml
+4- je cherche à la racine du folder /git/k8s-java-postgres tous mes fichiers contenant l'expression itdriveview :
+grep -R itdriveview
+
+==> il me ressort le fichier : src/main/resources/kubernetes/deployment.yml
 
 j'édite mon fichier pour être sûr que cette spec yaml contient bien le nom exact de l'image et du tag 
 
@@ -43,19 +45,40 @@ kubectl apply -f deployment.yml
 8- je liste mes ressources Pod démarrées 
 kubectl get po 
 
-9- je fais un port-forward de l'un des Pod, par exemple : 
-kubectl port-forward springboot-postgres-k8s-5495bddf67-5xqtd 8099:8080
+9- je regarde les logs de l'un des Pod pour m'assurer que l'application spring boot a bien démarré :
+kubectl logs springboot-postgres-k8s-74dbc65d4-87b7t
 
-10- dans un Postman, je teste mon application avec du POST 
-http://localhost:8099/api/employees
+====> 10A tester l'application via un port-forward =================================
 
-	payload json = 
-	{
-	    "name" : "DELDOUT"
-	}
+	10A-1 je fais un port-forward de l'un des Pod, par exemple : 
+	kubectl port-forward springboot-postgres-k8s-5495bddf67-5xqtd 8099:8080
 
-et avec le verbe GET
-http://localhost:8089/api/employees
+	10A-2 dans un Postman, je teste mon application avec du POST 
+	http://localhost:8099/api/employees
+
+		payload json = 
+		{
+		    "name" : "DELDOUT"
+		}
+
+	et avec le verbe GET
+	http://localhost:8089/api/employees
+
+====> 10B tester l'application via un service =====================================
+
+	10B-1 j'ai besoin de connaître l'adresse IP d'un des noeuds du cluster (ici, un seul, puisque sur minikube) :
+	kubectl get nodes -o wide
+	==> 192.168.49.2
+
+	10b-2 je liste mes services et je récupère le NodePort du service qui expose le Pod de l'appli spring-boot :
+	kubectl get svc 
+	==> 30163
+
+	10b-3 je peux maintenant atteindre mon Pod spring boot en passant par l'ip du noeud et le NodePort : 
+	avec Postman, j'ai juste à utiliser cette url : 
+	http://192.168.49.2:30163/api/employees
+
+	avec les verbes POST et GET
 
 -----------------------------------------------------------------
 -- bien comprendre les mécanismes 
