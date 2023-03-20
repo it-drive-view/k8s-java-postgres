@@ -123,6 +123,8 @@ java -jar target/springboot-postgres-k8s-0.0.1-SNAPSHOT.jar
 
 	remarque:
         il faut démarrer l'appli java dans le même terminale que celui où on a créé nos variables d'environnement (elles risquent de ne pas être vues sinon)    
+	ou alors : s'assure que mes variables d'environnement soient bien persistantes. regarder mon liebn drive si besoin :
+	https://docs.google.com/document/d/1Mc65goHc4B_x6hrMR3g5womP47ox_gNygRaMp9BLJLY/edit#heading=h.bznkwyq3as6k
 
 10- dans un Postman, je teste mon application avec du POST
 http://localhost:8080/api/employees
